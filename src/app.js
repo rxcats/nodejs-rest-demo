@@ -18,8 +18,8 @@ app.use('/', require('./routes'));
 
 app.use(error.converter);
 
-const server = app.listen(config.PORT, function () {
-    console.log(`server started! port:${config.PORT}`);
+const server = app.listen(config.port, function () {
+    console.log(`server started! port:${config.port}`);
 });
 
 const shutdown = () => {

@@ -1,10 +1,9 @@
-const databaseConfig = require('../util/database.config');
-
-const redisPool = require('redis-connection-pool')('default', databaseConfig.REDIS_CONFIG);
+const config = require('../../config/config');
+const redisPool = require('redis-connection-pool')('default', config.redis.server);
 
 exports.getValue = async (key) => {
     return new Promise((resolve, reject) => {
-        if (databaseConfig.ENABLE_CACHE === false) {
+        if (config.redis.enable === false) {
             resolve(null);
             return;
         }
@@ -24,7 +23,7 @@ exports.getValue = async (key) => {
 
 exports.setValue = async (key, value, ttl = 0) => {
     return new Promise((resolve, reject) => {
-        if (databaseConfig.ENABLE_CACHE === false) {
+        if (config.redis.enable === false) {
             resolve(value);
             return;
         }
@@ -37,10 +36,13 @@ exports.setValue = async (key, value, ttl = 0) => {
                     redisPool.expire(key, ttl, (err) => {
                         if (err) {
                             reject(err);
+                        } else {
+                            resolve(value);
                         }
                     });
+                } else {
+                    resolve(value);
                 }
-                resolve(value);
             }
         });
     });
@@ -48,7 +50,7 @@ exports.setValue = async (key, value, ttl = 0) => {
 
 exports.delValue = async (key) => {
     return new Promise((resolve, reject) => {
-        if (databaseConfig.ENABLE_CACHE === false) {
+        if (config.redis.enable === false) {
             resolve(null);
             return;
         }

@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const expressValidator = require('express-validator');
 const app = express();
 const compress = require('compression');
-const logger = require('morgan-body');
+const httpLogger = require('morgan');
 const error = require('./error/error');
 const config = require('../config/config');
 
@@ -12,13 +12,11 @@ app.use(bodyParser.json());
 app.use(expressValidator());
 app.use(compress());
 
-logger(app);
-
 app.use('/', require('./routes'));
 
 app.use(error.converter);
 
-const server = app.listen(config.port, function () {
+const server = app.listen(config.port, () => {
     console.log(`server started! port:${config.port}`);
 });
 

@@ -1,5 +1,10 @@
 const config = require('../../config/config');
-const redisPool = require('redis-connection-pool')('default', config.redis.server);
+const redis = require('redis');
+const redisClient = redis.createClient({
+    host: config.redis.server.host,
+    port: config.redis.server.port,
+    db: config.redis.server.database,
+});
 
 exports.getValue = async (key) => {
     return new Promise((resolve, reject) => {
@@ -7,7 +12,7 @@ exports.getValue = async (key) => {
             resolve(null);
             return;
         }
-        redisPool.get(key, (err, reply) => {
+        redisClient.get(key, (err, reply) => {
             if (err) {
                 reject(err);
             } else {
@@ -28,21 +33,11 @@ exports.setValue = async (key, value, ttl = 0) => {
             return;
         }
         const json = JSON.stringify(value);
-        redisPool.set(key, json, (err) => {
+        redisClient.set(key, json, 'EX', ttl, (err) => {
             if (err) {
                 reject(err);
             } else {
-                if (ttl > 0) {
-                    redisPool.expire(key, ttl, (err) => {
-                        if (err) {
-                            reject(err);
-                        } else {
-                            resolve(value);
-                        }
-                    });
-                } else {
-                    resolve(value);
-                }
+                resolve(value);
             }
         });
     });
@@ -54,7 +49,7 @@ exports.delValue = async (key) => {
             resolve(null);
             return;
         }
-        redisPool.del(key, (err, reply) => {
+        redisClient.delete(key, (err, reply) => {
             if (err) {
                 reject(err);
             } else {

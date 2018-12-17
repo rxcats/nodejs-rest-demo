@@ -1,9 +1,11 @@
-describe('other.test', () => {
-    it('let test', (done) => {
+const assert = require('assert');
+
+describe('basic.test', () => {
+    it('should be true', (done) => {
 
         let value = false;
         value = true;
-        console.log('value is', value);
+        assert.equal(value, true);
 
         done();
     });
